@@ -1,4 +1,6 @@
 # JAVA_NIO
+##Java NIO系列教程（六） Selector  
+http://ifeve.com/selectors/#SelectionKey  
 form http://blog.csdn.net/zavakid/article/details/6732082
 
 
