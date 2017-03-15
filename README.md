@@ -18,3 +18,21 @@ wakeup的原理
 既然Selector阻塞式选择因为找到感兴趣事件ready才会返回(排除超时、中断)，就给它构造一个感兴趣事件ready的场景即可。下图可以比较形象的形容wakeup原理：
 
 Selector管辖的FD(文件描述符，Linux即为fd，对应一个文件，windows下对应一个句柄；每个可选择Channel在创建的时候，就生成了与其对应的FD，Channel与FD的联系见另一篇)中包含某一个FD A， A对数据可读事件感兴趣，当往图中漏斗端放入(写入)数据，数据会流进A，于是A有感兴趣事件ready，最终，select得到结果而返回。
+
+#Java NIO——Selector机制解析三（源码分析）  
+http://goon.iteye.com/blog/1775421  
+    可见创建的ServerSocketChannelImpl也有WindowsSelectorImpl的引用。
+    Java代码  收藏代码
+    ServerSocketChannelImpl(SelectorProvider sp) throws IOException {  
+            super(sp);  
+            this.fd =  Net.serverSocket(true);  //打开一个socket，返回FD  
+            this.fdVal = IOUtil.fdVal(fd);  
+            this.state = ST_INUSE;  
+    }  
+
+    然后通过serverChannel1.register(selector, SelectionKey.OP_ACCEPT);把selector和channel绑定在一起，也就是把new ServerSocketChannel时创建的FD与selector绑定在了一起。
+    到此，server端已启动完成了，主要创建了以下对象：
+    WindowsSelectorProvider：单例
+    WindowsSelectorImpl中包含：
+        pollWrapper：保存selector上注册的FD，包括pipe的write端FD和ServerSocketChannel所用的FD
+        wakeupPipe：通道（其实就是两个FD，一个read，一个write）
